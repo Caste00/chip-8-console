@@ -24,6 +24,7 @@ public:
     void reset();
     uint16_t fetch();
     void execute(uint16_t opcode);
+    void tickTimer();
     void set_seed(uint32_t seed);
     void set_modernMode(bool m);
 
@@ -287,4 +288,7 @@ void Chip8::execute(uint16_t opcode) {
     }
 }
 
-// manca il decremeno dei timer (-60 ogni secondo)
+void Chip8::tickTimer() {
+    if (delay_timer > 0)    delay_timer--;
+    if (sound_timer > 0)    sound_timer--;
+}
