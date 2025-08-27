@@ -10,21 +10,27 @@ class Chip8 {
     array<uint8_t, 0x800> video;        // ottimizzabile: un bit per pixel con delle maschere invece che un byte
     array<uint16_t, 16> stack;
     array<uint8_t, 16> v;
+    uint16_t key_state;
     uint16_t i;
     uint16_t pc;
     uint8_t sp;
     uint8_t delay_timer;
     uint8_t sound_timer;
+    uint32_t seed;
+    bool modernMode;
 
 public: 
     Chip8();
     void reset();
     uint16_t fetch();
     void execute(uint16_t opcode);
+    void set_seed(uint32_t seed);
+    void set_modernMode(bool m);
 
 private: 
     void push(uint16_t value);
     uint16_t pop();
+    uint8_t randByte();
 };
 
 Chip8::Chip8() {
@@ -35,11 +41,14 @@ void Chip8::reset() {
     memory.fill(0);
     stack.fill(0);
     v.fill(0);
+    key_state = 0;
     i = 0;
     pc = 0x200;
     sp = 0;
     delay_timer = 0;
     sound_timer = 0;
+    seed = 0xDEADBEEF;
+    modernMode = false;
 
 // Fonts standard (80 byte)
     const uint8_t fontset[80] = {
@@ -61,8 +70,16 @@ void Chip8::reset() {
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
-    for (int i = 0; i < 80; i++)
+    for (int j = 0; j < 80; j++)
         memory[i] = fontset[i];
+}
+
+void Chip8::set_seed(uint32_t seed) {
+    this->seed = seed;
+}
+
+void Chip8::set_modernMode(bool m) {
+    modernMode = m;
 }
 
 uint16_t Chip8::fetch() {
@@ -80,19 +97,26 @@ void Chip8::push(uint16_t value) {
 }
 
 uint16_t Chip8::pop() {
-    if (sp <= 0) {
+    if (sp == 0) {
         throw runtime_error("Stack overflow");
     }
     sp--;
     return stack[sp];
 }
 
+// Invece di avere un seed fisso posso leggere da un pin analogico libero e usare quello come seed, oppure da un timer quando faccio il boot
+uint8_t Chip8::randByte() {
+    seed = seed * 1664525 + 1013904223;
+    return (seed >> 16) & 0xFF;
+}
+
 void Chip8::execute(uint16_t opcode) {
     uint8_t x = (opcode & 0x0F00) >> 8;
-    uint8_t y = (opcode & 0x00F0);
+    uint8_t y = (opcode & 0x00F0) >> 4;
     uint8_t nn = opcode & 0x00FF;
-    switch (opcode & 0xF000) {
-        case 0x0000:
+    uint16_t nnn = opcode & 0x0FFF;
+    switch ((opcode & 0xF000) >> 12) {
+        case 0x0:
             switch (opcode) {
                 case 0x00E0: 
                     video.fill(0);
@@ -104,34 +128,32 @@ void Chip8::execute(uint16_t opcode) {
                     break;
             }
             break;
-        case 0x1000:
-            pc = opcode & 0x0FFF;
+        case 0x1:
+            pc = nnn;
             break;
-        case 0x2000:
+        case 0x2:
             push(pc);
-            pc = opcode & 0x0FFF;
+            pc = nnn;
             break;
-        case 0x3000:
+        case 0x3:
             if (v[x] == nn)     
                 pc += 2;
             break;
-        case 0x4000:
+        case 0x4:
             if (v[x] != nn)
                 pc += 2;
             break;
-        case 0x5000:
-            if (opcode & 0x000F == 0) {
-                if (v[x] == v[y])       
-                    pc += 2;
-            }
+        case 0x5:
+            if ((opcode & 0x000F) == 0 && v[x] == v[y])         
+                pc += 2;
             break;
-        case 0x6000:
+        case 0x6:
             v[x] = nn;
             break;
-        case 0x7000:
+        case 0x7:
             v[x] += nn;
             break;
-        case 0x8000:
+        case 0x8:
             switch (opcode & 0x000F) {
                 case 0:
                     v[x] = v[y];
@@ -143,9 +165,126 @@ void Chip8::execute(uint16_t opcode) {
                     v[x] &= v[y];
                     break;
                 case 3: 
-                    V[x] t
+                    v[x] ^= v[y];
+                    break;
+                case 4: 
+                    uint16_t sum = v[x] + v[y];
+                    v[0xF] = sum >> 8;
+                    v[x] = sum & 0xFF;
+                    break;
+                case 5: 
+                    v[0xF] = (v[x] >= v[y]) ? 1 : 0;
+                    v[x] -= v[y];
+                    break;
+                case 6:
+                    v[0xF] = v[x] & 1;      // 0b00000001
+                    v[x] >>= 1;
+                    break;
+                case 7:
+                    v[0xF] = (v[y] >= v[x]) ? 1 : 0;
+                    v[x] = v[y] - v[x];
+                    break;
+                case 0xE:
+                    v[0xF] = (v[x] & 0x80) >> 7;   // 0b10000000 poi sposto il valore al primo bit
+                    v[x] <<= 1;
+                    break;
                 default: 
                     break;
             }
+            break;
+        case 9:
+            if ((opcode & 0x000F) == 0 && v[x] != v[y]) 
+                pc += 2;
+            break;
+        case 0xA:
+            i = nnn;
+            break;
+        case 0xB:
+            pc = v[0] + nnn;
+            break;
+        case 0xC:
+            v[x] = randByte() & nn;
+            break;
+        case 0xD:
+            v[0xF] = 0;
+            uint8_t n = opcode & 0x000F;
+            for (int row = 0; row < n; ++row) {
+                uint8_t sprite_byte = memory[i + row];
+                for (int col = 0; col < 8; ++col) {
+                    if (sprite_byte & (0x80 >> col)) {
+                        int x_coord = (v[x] + col) % 64;        // il % è per non uscire dal bordo dello schermo
+                        int y_coord = (v[y] + row) % 32;
+                        int pixel_index = y_coord * 64 + x_coord;
+
+                        if (video[pixel_index] == 1)
+                            v[0xF] = 1;
+
+                        video[pixel_index] ^= 1;
+                    }
+                }
+            }
+            break;
+        case 0xE:
+            switch (nn) {
+                case 0x9E:
+                    if (key_state & (1 << v[x]))
+                        pc += 2;
+                    break;
+                case 0xA1:
+                    if (!(key_state & (1 << v[x])))
+                        pc += 2;
+                    break;
+                default: 
+                    break;
+            }
+            break;
+        case 0xF:
+            switch (opcode & 0x00FF) {
+                case 0x07:
+                    v[x] = delay_timer;
+                    break;
+                case 0x0A:
+                    while(1) {
+                        if (key_state & (1 << v[x]))
+                            break;
+                    }
+                    break;
+                case 0x15:
+                    delay_timer = v[x];
+                    break;
+                case 0x18:
+                    sound_timer = v[x];
+                    break;
+                case 0x1E:
+                    i += v[x];
+                    break;
+                case 0x29:
+                    i = v[x] * 5;
+                    break;
+                case 0x33:
+                    memory[i]       = v[x] / 100;
+                    memory[i + 1]   = (v[x] / 10) % 10;
+                    memory[i + 2]   = v[x] % 10; 
+                    break;
+                case 0x55:
+                    for (int j = 0; j <= x; j++) {
+                        memory[i + j] = v[j]; 
+                    }
+                    i = modernMode ? i : i + x + 1;
+                    break;
+                case 0x65:
+                    for (int j = 0; j <= x; j++) {
+                        v[j] = memory[i + j];
+                    }
+                    i = modernMode ? i : i + x + 1;
+                    break;
+                default: 
+                    break;
+            }
+            break;
+        default: 
+            break;
     }
 }
+
+// manca il decremeno dei timer (-60 ogni secondo)
