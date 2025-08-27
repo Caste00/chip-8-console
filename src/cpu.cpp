@@ -1,36 +1,9 @@
-#pragma once
+/*******************/
+/*     Made by     */
+/*     Caste00     */
+/*******************/
 
 #include "cpu.h"
-
-class Chip8 {
-    std::array<uint8_t, 0x1000> memory;
-    std::array<uint8_t, 0x800> video;        // ottimizzabile: un bit per pixel con delle maschere invece che un byte
-    std::array<uint16_t, 16> stack;
-    std::array<uint8_t, 16> v;
-    uint16_t key_state;
-    uint16_t i;
-    uint16_t pc;
-    uint8_t sp;
-    uint8_t delay_timer;
-    uint8_t sound_timer;
-    uint32_t seed;
-    bool modernMode;
-
-public: 
-    Chip8();
-    void reset();
-    uint16_t fetch();
-    void execute(uint16_t opcode);
-    void tickTimer();
-    void set_seed(uint32_t seed);
-    void set_modernMode(bool m);
-    void write_on_memory(uint16_t addr, uint8_t byte);
-
-private: 
-    void push(uint16_t value);
-    uint16_t pop();
-    uint8_t randByte();
-};
 
 Chip8::Chip8() {
     reset();
@@ -115,96 +88,120 @@ void Chip8::execute(uint16_t opcode) {
     uint8_t nn = opcode & 0x00FF;
     uint16_t nnn = opcode & 0x0FFF;
     switch ((opcode & 0xF000) >> 12) {
-        case 0x0:
+        case 0x0: {
             switch (opcode) {
-                case 0x00E0: 
+                case 0x00E0: {
                     video.fill(0);
                     break;
-                case 0x00EE: 
+                }
+                case 0x00EE: {
                     pc = pop();
                     break;
+                }
                 default:
                     break;
             }
             break;
-        case 0x1:
+        }
+        case 0x1: {
             pc = nnn;
             break;
-        case 0x2:
+        }
+        case 0x2: {
             push(pc);
             pc = nnn;
             break;
-        case 0x3:
+        }
+        case 0x3: {
             if (v[x] == nn)     
                 pc += 2;
             break;
-        case 0x4:
+        }
+        case 0x4: {
             if (v[x] != nn)
                 pc += 2;
             break;
-        case 0x5:
+        }
+        case 0x5: {
             if ((opcode & 0x000F) == 0 && v[x] == v[y])         
                 pc += 2;
             break;
-        case 0x6:
+        }
+        case 0x6: {
             v[x] = nn;
             break;
-        case 0x7:
+        }
+        case 0x7: {
             v[x] += nn;
             break;
-        case 0x8:
+        }
+        case 0x8: {
             switch (opcode & 0x000F) {
-                case 0:
+                case 0: {
                     v[x] = v[y];
                     break;
-                case 1:
+                }
+                case 1: {
                     v[x] |= v[y];
                     break;
-                case 2:
+                }
+                case 2: {
                     v[x] &= v[y];
                     break;
-                case 3: 
+                }
+                case 3: {
                     v[x] ^= v[y];
                     break;
-                case 4: 
+                }
+                case 4: { 
                     uint16_t sum = v[x] + v[y];
                     v[0xF] = sum >> 8;
                     v[x] = sum & 0xFF;
                     break;
-                case 5: 
+                }
+                case 5: {
                     v[0xF] = (v[x] >= v[y]) ? 1 : 0;
                     v[x] -= v[y];
                     break;
-                case 6:
+                }
+                case 6: {
                     v[0xF] = v[x] & 1;      // 0b00000001
                     v[x] >>= 1;
                     break;
-                case 7:
+                }
+                case 7: {
                     v[0xF] = (v[y] >= v[x]) ? 1 : 0;
                     v[x] = v[y] - v[x];
                     break;
-                case 0xE:
+                }
+                case 0xE: {
                     v[0xF] = (v[x] & 0x80) >> 7;   // 0b10000000 poi sposto il valore al primo bit
                     v[x] <<= 1;
                     break;
+                }
                 default: 
                     break;
             }
             break;
-        case 9:
+        }
+        case 9: {
             if ((opcode & 0x000F) == 0 && v[x] != v[y]) 
                 pc += 2;
             break;
-        case 0xA:
+        }
+        case 0xA: {
             i = nnn;
             break;
-        case 0xB:
+        }
+        case 0xB: {
             pc = v[0] + nnn;
             break;
-        case 0xC:
+        }
+        case 0xC: {
             v[x] = randByte() & nn;
             break;
-        case 0xD:
+        }
+        case 0xD: {
             v[0xF] = 0;
             uint8_t n = opcode & 0x000F;
             for (int row = 0; row < n; ++row) {
@@ -223,64 +220,78 @@ void Chip8::execute(uint16_t opcode) {
                 }
             }
             break;
-        case 0xE:
+        }
+        case 0xE: {
             switch (nn) {
-                case 0x9E:
+                case 0x9E: {
                     if (key_state & (1 << v[x]))
                         pc += 2;
                     break;
-                case 0xA1:
+                }
+                case 0xA1: {
                     if (!(key_state & (1 << v[x])))
                         pc += 2;
                     break;
+                }
                 default: 
                     break;
             }
             break;
-        case 0xF:
+        }
+        case 0xF: {
             switch (opcode & 0x00FF) {
-                case 0x07:
+                case 0x07: {
                     v[x] = delay_timer;
                     break;
-                case 0x0A:
+                }
+                case 0x0A: {
                     if (key_state & (1 << v[x]))
                         break;
                     else
                         pc -= 2;
                     break;
-                case 0x15:
+                }
+                case 0x15: {
                     delay_timer = v[x];
                     break;
-                case 0x18:
+                }
+                case 0x18: {
                     sound_timer = v[x];
                     break;
-                case 0x1E:
+                }
+                case 0x1E: {
                     i += v[x];
                     break;
-                case 0x29:
+                }
+                case 0x29: {
                     i = v[x] * 5;
                     break;
-                case 0x33:
+                }
+                case 0x33: {
                     memory[i]       = v[x] / 100;
                     memory[i + 1]   = (v[x] / 10) % 10;
                     memory[i + 2]   = v[x] % 10; 
                     break;
-                case 0x55:
+                }
+                case 0x55: {
                     for (int j = 0; j <= x; j++) {
                         memory[i + j] = v[j]; 
                     }
                     i = modernMode ? i : i + x + 1;
                     break;
-                case 0x65:
+                }
+                case 0x65: {
                     for (int j = 0; j <= x; j++) {
                         v[j] = memory[i + j];
                     }
                     i = modernMode ? i : i + x + 1;
                     break;
+                }
                 default: 
                     break;
             }
             break;
+        }
         default: 
             break;
     }
