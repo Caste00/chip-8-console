@@ -1,15 +1,12 @@
 #pragma once
-#include <array>
-#include <cstdint>
-#include <stdexcept>
 
-using namespace std;
+#include "cpu.h"
 
 class Chip8 {
-    array<uint8_t, 0x1000> memory;
-    array<uint8_t, 0x800> video;        // ottimizzabile: un bit per pixel con delle maschere invece che un byte
-    array<uint16_t, 16> stack;
-    array<uint8_t, 16> v;
+    std::array<uint8_t, 0x1000> memory;
+    std::array<uint8_t, 0x800> video;        // ottimizzabile: un bit per pixel con delle maschere invece che un byte
+    std::array<uint16_t, 16> stack;
+    std::array<uint8_t, 16> v;
     uint16_t key_state;
     uint16_t i;
     uint16_t pc;
@@ -27,6 +24,7 @@ public:
     void tickTimer();
     void set_seed(uint32_t seed);
     void set_modernMode(bool m);
+    void write_on_memory(uint16_t addr, uint8_t byte);
 
 private: 
     void push(uint16_t value);
@@ -44,7 +42,7 @@ void Chip8::reset() {
     v.fill(0);
     key_state = 0;
     i = 0;
-    pc = 0x200;
+    pc = 0x50;
     sp = 0;
     delay_timer = 0;
     sound_timer = 0;
@@ -91,7 +89,7 @@ uint16_t Chip8::fetch() {
 
 void Chip8::push(uint16_t value) {
     if (sp >= stack.size()) {
-        throw runtime_error("Stack overflow");
+        throw std::runtime_error("Stack overflow");
     }
     stack[sp] = value;
     sp++;
@@ -99,7 +97,7 @@ void Chip8::push(uint16_t value) {
 
 uint16_t Chip8::pop() {
     if (sp == 0) {
-        throw runtime_error("Stack overflow");
+        throw std::runtime_error("Stack overflow");
     }
     sp--;
     return stack[sp];
@@ -291,4 +289,9 @@ void Chip8::execute(uint16_t opcode) {
 void Chip8::tickTimer() {
     if (delay_timer > 0)    delay_timer--;
     if (sound_timer > 0)    sound_timer--;
+}
+
+void Chip8::write_on_memory(uint16_t addr, uint8_t byte) {
+    if (addr >= 0x1000)     throw std::runtime_error("Address to big");
+    memory[addr] = byte;
 }
