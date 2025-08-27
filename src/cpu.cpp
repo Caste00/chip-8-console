@@ -71,7 +71,7 @@ void Chip8::reset() {
     };
 
     for (int j = 0; j < 80; j++)
-        memory[i] = fontset[i];
+        memory[j] = fontset[j];
 }
 
 void Chip8::set_seed(uint32_t seed) {
@@ -244,10 +244,10 @@ void Chip8::execute(uint16_t opcode) {
                     v[x] = delay_timer;
                     break;
                 case 0x0A:
-                    while(1) {
-                        if (key_state & (1 << v[x]))
-                            break;
-                    }
+                    if (key_state & (1 << v[x]))
+                        break;
+                    else
+                        pc -= 2;
                     break;
                 case 0x15:
                     delay_timer = v[x];
