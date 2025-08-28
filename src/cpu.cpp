@@ -4,6 +4,7 @@
 /*******************/
 
 #include "cpu.h"
+#include <iostream>
 
 Chip8::Chip8() {
     reset();
@@ -12,11 +13,12 @@ Chip8::Chip8() {
 void Chip8::reset() {
     memory.fill(0);
     stack.fill(0);
+    video.fill(0);
     v.fill(0);
     key_state = 0;
     i = 0;
     pc = 0x50;
-    sp = 0;
+    sp = 0; 
     delay_timer = 0;
     sound_timer = 0;
     seed = 0xDEADBEEF;
@@ -57,12 +59,13 @@ void Chip8::set_modernMode(bool m) {
 uint16_t Chip8::fetch() {
     uint16_t opcode = (memory[pc] << 8) | memory[pc + 1];
     pc += 2;
+    if (pc >= MEMORY_DIMENSION)     throw std::runtime_error("PC overflow");
     return opcode;
 }
 
 void Chip8::push(uint16_t value) {
     if (sp >= stack.size()) {
-        throw std::runtime_error("Stack overflow");
+        throw std::runtime_error("Stack overflow (push)");
     }
     stack[sp] = value;
     sp++;
@@ -70,7 +73,7 @@ void Chip8::push(uint16_t value) {
 
 uint16_t Chip8::pop() {
     if (sp == 0) {
-        throw std::runtime_error("Stack overflow");
+        throw std::runtime_error("Stack overflow (pop)");
     }
     sp--;
     return stack[sp];
@@ -83,6 +86,8 @@ uint8_t Chip8::randByte() {
 }
 
 void Chip8::execute(uint16_t opcode) {
+    std::cout << "pc: " << pc << " opcode: " << std::hex << opcode << std::endl;
+
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
     uint8_t nn = opcode & 0x00FF;
@@ -305,4 +310,8 @@ void Chip8::tickTimer() {
 void Chip8::write_on_memory(uint16_t addr, uint8_t byte) {
     if (addr >= 0x1000)     throw std::runtime_error("Address to big");
     memory[addr] = byte;
+}
+
+std::array<uint8_t, 0x800> Chip8::get_video() {
+    return video;
 }

@@ -1,21 +1,21 @@
 #include "cpu.h"
+#include "display.h"
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 void loadROM(Chip8 &cpu, const std::string &filename);
 
 int main() {
     Chip8 cpu;
 
-    loadROM(cpu, "../c8_test.c8");
-    // esecuzione del codice
-    for (int step = 0; step < 10000; step++) {
-        uint16_t opcode = cpu.fetch();
-        cpu.execute(opcode);
+    loadROM(cpu, "../test.ch8");
 
-        std::cout << "Step " << step
-                  << " OPCODE=" << std::hex << opcode << "\n";
-    }
+    if (!initWindow("CHIP-8 Emulator", 640, 320))
+        return -1;
+    
+    mainLoop(cpu);
+    cleanup();
 
     return 0;
 }

@@ -1,12 +1,13 @@
 TARGET := eseguibile
-SRC := main.cpp cpu.cpp
+SRC := *.cpp
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -O2
+LDFLAGS := -lSDL2
 
 check: build run clean
 
 build:
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)
 
 run: 
 	./$(TARGET)
