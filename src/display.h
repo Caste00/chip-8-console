@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL2/SDL.h>
 #include "cpu.h"
+#include <SDL2/SDL.h>
 
 #define CHIP8_WIDTH 64
 #define CHIP8_HEIGHT 32
