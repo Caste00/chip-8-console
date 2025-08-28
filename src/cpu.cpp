@@ -56,6 +56,14 @@ void Chip8::set_modernMode(bool m) {
     modernMode = m;
 }
 
+void Chip8::set_key_state(uint8_t key, bool pressed) {
+    if (key > 0xF)  return;
+    if (pressed) 
+        key_state |= (1 << key);
+    else   
+        key_state &= ~(1 << key);
+}
+
 uint16_t Chip8::fetch() {
     uint16_t opcode = (memory[pc] << 8) | memory[pc + 1];
     pc += 2;

@@ -135,3 +135,4 @@ Mappatura: 1 pixel CHIP‑8 → blocco 2×2 pixel reali
 - Alcuni opcode (`8XY6`, `8XYE`) in certe implementazioni usano `Vy` come sorgente invece di `Vx`.
 - Le istruzioni `FX55` e `FX65` possono o meno incrementare `I` a seconda dell’interprete.
 - Super‑CHIP‑8 aggiunge opcode per scroll e modalità grafiche estese.
+- è possibile scegliere tra la modalità "moderna" e "originale", questo cambia le istruzioni  0xFX55 e 0xFX65

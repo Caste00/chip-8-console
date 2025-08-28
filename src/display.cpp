@@ -38,20 +38,134 @@ void mainLoop(Chip8& cpu) {
     bool running = true;
     SDL_Event e;
 
+    const int TIMER_INTERVAL_MS = 1000 / 60;
+    uint32_t lastTimerUpdate = SDL_GetTicks();
+
     while (running) {
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT)     running = false;
+            if (e.type == SDL_QUIT)     
+                running = false;
+            else if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_1: 
+                        cpu.set_key_state(0x1, true);
+                        break;
+                    case SDLK_2:
+                        cpu.set_key_state(0x2, true);
+                        break;
+                    case SDLK_3:
+                        cpu.set_key_state(0x3, true);
+                        break;
+                    case SDLK_4:
+                        cpu.set_key_state(0x4, true);
+                        break;
+                    case SDLK_5:
+                        cpu.set_key_state(0x5, true);
+                        break;
+                    case SDLK_6:
+                        cpu.set_key_state(0x6, true);
+                        break;
+                    case SDLK_7:
+                        cpu.set_key_state(0x7, true);
+                        break;
+                    case SDLK_8:
+                        cpu.set_key_state(0x8, true);
+                        break;
+                    case SDLK_9:
+                        cpu.set_key_state(0x9, true);
+                        break;
+                    case SDLK_a:
+                        cpu.set_key_state(0xA, true);
+                        break;
+                    case SDLK_b:
+                        cpu.set_key_state(0xB, true);
+                        break;
+                    case SDLK_c:
+                        cpu.set_key_state(0xC, true);
+                        break;
+                    case SDLK_d:
+                        cpu.set_key_state(0xD, true);
+                        break;
+                    case SDLK_e:
+                        cpu.set_key_state(0xE, true);
+                        break;
+                    case SDLK_f:
+                        cpu.set_key_state(0xF, true);
+                        break;
+                    default: 
+                        break;
+                }
+            }        
+            else if (e.type == SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_1: 
+                        cpu.set_key_state(0x1, false);
+                        break;
+                    case SDLK_2:
+                        cpu.set_key_state(0x2, false);
+                        break;
+                    case SDLK_3:
+                        cpu.set_key_state(0x3, false);
+                        break;
+                    case SDLK_4:
+                        cpu.set_key_state(0x4, false);
+                        break;
+                    case SDLK_5:
+                        cpu.set_key_state(0x5, false);
+                        break;
+                    case SDLK_6:
+                        cpu.set_key_state(0x6, false);
+                        break;
+                    case SDLK_7:
+                        cpu.set_key_state(0x7, false);
+                        break;
+                    case SDLK_8:
+                        cpu.set_key_state(0x8, false);
+                        break;
+                    case SDLK_9:
+                        cpu.set_key_state(0x9, false);
+                        break;
+                    case SDLK_a:
+                        cpu.set_key_state(0xA, false);
+                        break;
+                    case SDLK_b:
+                        cpu.set_key_state(0xB, false);
+                        break;
+                    case SDLK_c:
+                        cpu.set_key_state(0xC, false);
+                        break;
+                    case SDLK_d:
+                        cpu.set_key_state(0xD, false);
+                        break;
+                    case SDLK_e:
+                        cpu.set_key_state(0xE, false);
+                        break;
+                    case SDLK_f:
+                        cpu.set_key_state(0xF, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
-        // cpu cycle
-        uint16_t opcode = cpu.fetch();
-        cpu.execute(opcode);
-    
-        cpu.tickTimer();
+        // cpu cycle, eseguo 10 cicli di cpu per ogni frame
+        for (int i = 0; i < 10; i++) {
+            uint16_t opcode = cpu.fetch();
+            cpu.execute(opcode);
+        }
+
+        // aggiorno il timer a 60 Hz
+        uint32_t now = SDL_GetTicks();
+        if (now - lastTimerUpdate >= TIMER_INTERVAL_MS) {
+            cpu.tickTimer();
+            lastTimerUpdate = now;
+        }
+
         drawChip8Screen(renderer, cpu);
 
-        // Limita gli FPS a circa 60
-        SDL_Delay(16);
+        // piccola pausa per non saturare la cpu
+        SDL_Delay(1);
     }
 }
 

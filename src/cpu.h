@@ -33,6 +33,7 @@ public:
     void tickTimer();
     void set_seed(uint32_t seed);
     void set_modernMode(bool m);
+    void set_key_state(uint8_t key, bool pressed);
     void write_on_memory(uint16_t addr, uint8_t byte);
     std::array<uint8_t, 0x800> get_video();
 
