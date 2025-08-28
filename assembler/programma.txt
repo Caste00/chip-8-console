@@ -1,7 +1,8 @@
 ;questa è solo una prova per vedere se tutto funziona;
 
-LD V0,0xA
+LD V0, 1
 LD_F V0
-DRW V1,V2,0x5
-NOP
-JP 0x58
+DRW V1,V2,5
+NOP             
+JP 86           ; 86 = 0x56
+

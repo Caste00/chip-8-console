@@ -78,7 +78,5 @@ def save_bin(namefile, opcodes):
 
 if __name__ == "__main__":
     ops = assemble_file("../programma.txt", "instruction_set.json")
-    for op in ops:
-        print(f"{op:04X}")
-    
+    print("Operazione terminata correttamente")
     save_bin("../prova", ops)
