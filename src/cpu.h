@@ -36,9 +36,13 @@ public:
     void set_key_state(uint8_t key, bool pressed);
     void write_on_memory(uint16_t addr, uint8_t byte);
     std::array<uint8_t, 0x800> get_video();
-
-private: 
+    
+    private: 
     void push(uint16_t value);
     uint16_t pop();
     uint8_t randByte();
+    
+    // Per debug
+    std::array<uint8_t, MEMORY_DIMENSION> get_memory();
+    uint8_t get_pc();
 };

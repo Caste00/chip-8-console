@@ -151,6 +151,7 @@ void mainLoop(Chip8& cpu) {
 
         // cpu cycle, eseguo 10 cicli di cpu per ogni frame
         for (int i = 0; i < 10; i++) {
+            //std::cout << std::hex << cpu.get_pc() << " ";
             uint16_t opcode = cpu.fetch();
             cpu.execute(opcode);
         }

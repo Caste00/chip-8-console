@@ -93,7 +93,7 @@ Mappatura: 1 pixel CHIP‑8 → blocco 2×2 pixel reali
 
 | Opcode | Parametri | Descrizione | Note |
 |--------|-----------|-------------|------|
-| `0NNN` | NNN = addr | Chiamata a programma RCA 1802 a NNN | Obsoleto, ignorato negli emulatori moderni |
+| `0NNN` | NNN = addr | Chiamata a programma RCA 1802 a NNN | Obsoleto, ignorato negli emulatori moderni, (NOP) |
 | `00E0` | — | Cancella lo schermo | — |
 | `00EE` | — | Ritorna da subroutine | Pop da stack in PC |
 | `1NNN` | NNN = addr | Salta a NNN | PC = NNN |

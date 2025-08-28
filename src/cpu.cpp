@@ -17,7 +17,7 @@ void Chip8::reset() {
     v.fill(0);
     key_state = 0;
     i = 0;
-    pc = 0x50;
+    pc = 0x200;
     sp = 0; 
     delay_timer = 0;
     sound_timer = 0;
@@ -67,13 +67,16 @@ void Chip8::set_key_state(uint8_t key, bool pressed) {
 uint16_t Chip8::fetch() {
     uint16_t opcode = (memory[pc] << 8) | memory[pc + 1];
     pc += 2;
-    if (pc >= MEMORY_DIMENSION)     throw std::runtime_error("PC overflow");
+    if (pc >= MEMORY_DIMENSION) {
+        throw std::runtime_error("PC overflow");
+    }
+
     return opcode;
 }
 
 void Chip8::push(uint16_t value) {
     if (sp >= stack.size()) {
-        throw std::runtime_error("Stack overflow (push)");
+        throw std::runtime_error("Stack overflow");
     }
     stack[sp] = value;
     sp++;
@@ -81,7 +84,7 @@ void Chip8::push(uint16_t value) {
 
 uint16_t Chip8::pop() {
     if (sp == 0) {
-        throw std::runtime_error("Stack overflow (pop)");
+        throw std::runtime_error("Stack underflow");
     }
     sp--;
     return stack[sp];
@@ -320,4 +323,14 @@ void Chip8::write_on_memory(uint16_t addr, uint8_t byte) {
 
 std::array<uint8_t, 0x800> Chip8::get_video() {
     return video;
+}
+
+
+// DEBUG
+std::array<uint8_t, MEMORY_DIMENSION> Chip8::get_memory() {
+    return memory;
+}
+
+uint8_t Chip8::get_pc() {
+    return pc;
 }
