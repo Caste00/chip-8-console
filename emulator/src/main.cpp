@@ -14,7 +14,7 @@ void loadROM(Chip8 &cpu, const std::string &filename);
 int main() {
     Chip8 cpu;
 
-    loadROM(cpu, "../test.ch8");
+    loadROM(cpu, "../prova.ch8");
 
     if (!initWindow("CHIP-8 Emulator", 640, 320))
         return -1;
