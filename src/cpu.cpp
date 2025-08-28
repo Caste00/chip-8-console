@@ -86,8 +86,6 @@ uint8_t Chip8::randByte() {
 }
 
 void Chip8::execute(uint16_t opcode) {
-    std::cout << "pc: " << pc << " opcode: " << std::hex << opcode << std::endl;
-
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
     uint8_t nn = opcode & 0x00FF;
