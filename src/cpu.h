@@ -14,7 +14,7 @@
 class Chip8 {
     std::array<uint8_t, MEMORY_DIMENSION> memory;
     std::array<uint8_t, 0x800> video;        // ottimizzabile: un bit per pixel con delle maschere invece che un byte
-    std::array<uint16_t, 16> stack;
+    std::array<uint16_t, 32> stack;
     std::array<uint8_t, 16> v;
     uint16_t key_state;
     uint16_t i;
