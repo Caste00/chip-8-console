@@ -17,7 +17,7 @@ void Chip8::reset() {
     v.fill(0);
     key_state = 0;
     i = 0;
-    pc = 0x200;
+    pc = 0x50;
     sp = 0; 
     delay_timer = 0;
     sound_timer = 0;

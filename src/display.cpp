@@ -1,3 +1,8 @@
+/*******************/
+/*     Made by     */
+/*     Caste00     */
+/*******************/
+
 #include "display.h"
 #include "cpu.h"
 #include <iostream>
