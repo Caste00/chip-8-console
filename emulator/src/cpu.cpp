@@ -218,18 +218,22 @@ void Chip8::execute(uint16_t opcode) {
         case 0xD: {
             v[0xF] = 0;
             uint8_t n = opcode & 0x000F;
+
             for (int row = 0; row < n; ++row) {
                 uint8_t sprite_byte = memory[i + row];
-                for (int col = 0; col < 8; ++col) {
+                int y_coord = (v[y] + row) % HEIGHT;
+
+                for (int col = 0; col < 8; col++) {
                     if (sprite_byte & (0x80 >> col)) {
-                        int x_coord = (v[x] + col) % 64;        // il % è per non uscire dal bordo dello schermo
-                        int y_coord = (v[y] + row) % 32;
-                        int pixel_index = y_coord * 64 + x_coord;
+                        int x_coord = (v[x] + col) % WIDTH;
 
-                        if (video[pixel_index] == 1)
+                        int byte_index = y_coord * (WIDTH / 8) + (x_coord / 8);
+                        uint8_t mask = 0x80 >> (x_coord % 8);
+
+                        if (video[byte_index] & mask)
                             v[0xF] = 1;
-
-                        video[pixel_index] ^= 1;
+                        
+                        video[byte_index] ^= mask;
                     }
                 }
             }
@@ -321,7 +325,7 @@ void Chip8::write_on_memory(uint16_t addr, uint8_t byte) {
     memory[addr] = byte;
 }
 
-std::array<uint8_t, 0x800> Chip8::get_video() {
+std::array<uint8_t, VIDEO_BUFFER_DIMENSION> Chip8::get_video() {
     return video;
 }
 

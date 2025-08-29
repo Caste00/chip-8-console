@@ -41,6 +41,8 @@ def assemble_line(line, instruction_set):
     match meta["type"]:
         case "no_arg":
             return opcode
+        case "raw":
+            return args[0]
         case "nnn": 
             return opcode | args[0]
         case "x":
@@ -73,7 +75,10 @@ def assemble_file(namefile, path_instruction_set):
 def save_bin(namefile, opcodes):
     with open(namefile + ".ch8", "wb") as f:
         for op in opcodes:
-            f.write(op.to_bytes(2, byteorder="big"))
+            if op <= 0xFF:
+                f.write(bytes([op]))
+            else:
+                f.write(op.to_bytes(2, byteorder="big"))
 
 
 if __name__ == "__main__":

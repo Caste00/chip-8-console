@@ -8,9 +8,9 @@
 #include "cpu.h"
 #include <SDL2/SDL.h>
 
-#define CHIP8_WIDTH 64
-#define CHIP8_HEIGHT 32
-#define SCALE 10
+#define CHIP8_WIDTH 128
+#define CHIP8_HEIGHT 64
+#define SCALE 5
 
 bool initWindow(const char* title, int width, int height);
 void mainLoop(Chip8& cpu);

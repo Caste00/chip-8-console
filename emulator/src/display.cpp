@@ -177,20 +177,19 @@ void mainLoop(Chip8& cpu) {
 
 void drawChip8Screen(SDL_Renderer* renderer, Chip8& cpu) {
     const auto& buffer = cpu.get_video();
-
+    
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);         // sfondo nero
     SDL_RenderClear(renderer);
     
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);   // pixel bianchi
-
+    
     for (int y = 0; y < CHIP8_HEIGHT; y++) {
         for (int x = 0; x < CHIP8_WIDTH; x++) {
-            if (buffer[y * CHIP8_WIDTH + x]) {
-                SDL_Rect rect;
-                rect.x = x * SCALE;
-                rect.y = y * SCALE;
-                rect.w = SCALE;
-                rect.h = SCALE;
+            int byteIndex = y * (CHIP8_WIDTH / 8) + (x / 8);
+            uint8_t mask = 0x80 >> (x % 8);
+
+            if (buffer[byteIndex] & mask) {
+                SDL_Rect rect { x * SCALE, y * SCALE, SCALE, SCALE};
                 SDL_RenderFillRect(renderer, &rect);
             }
         }

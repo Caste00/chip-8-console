@@ -1,5 +1,6 @@
 {
     "NOP":      { "code": 0, "args": 0, "type": "no_arg" },
+	"DB":		{ "code": 1, "args": 1, "type": "raw" },
     "CLS":      { "code": 224, "args": 0, "type": "no_arg" },
     "RET":      { "code": 238, "args": 0, "type": "no_arg" },
     "JP":       { "code": 4096, "args": 1, "type": "nnn" },
