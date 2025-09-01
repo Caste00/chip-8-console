@@ -52,6 +52,9 @@ void mainLoop(Chip8& cpu) {
                 running = false;
             else if (e.type == SDL_KEYDOWN && !e.key.repeat) {
                 switch (e.key.keysym.sym) {
+                    case SDLK_0:
+                        cpu.set_key_state(0x0, true);
+                        break;
                     case SDLK_1: 
                         cpu.set_key_state(0x1, true);
                         break;
@@ -66,6 +69,7 @@ void mainLoop(Chip8& cpu) {
                         break;
                     case SDLK_5:
                         cpu.set_key_state(0x5, true);
+                        std::cout << "tasto 5 premuto";     // Debug
                         break;
                     case SDLK_6:
                         cpu.set_key_state(0x6, true);
@@ -103,6 +107,9 @@ void mainLoop(Chip8& cpu) {
             }        
             else if (e.type == SDL_KEYUP) {
                 switch (e.key.keysym.sym) {
+                    case SDLK_0: 
+                        cpu.set_key_state(0x0, false);
+                        break;
                     case SDLK_1: 
                         cpu.set_key_state(0x1, false);
                         break;
@@ -171,7 +178,7 @@ void mainLoop(Chip8& cpu) {
         drawChip8Screen(renderer, cpu);
 
         // piccola pausa per non saturare la cpu
-        SDL_Delay(1);
+        SDL_Delay(12);
     }
 }
 

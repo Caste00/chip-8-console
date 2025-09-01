@@ -11,10 +11,12 @@
 
 void loadROM(Chip8 &cpu, const std::string &filename);
 
-int main() {
-    Chip8 cpu;
+int main(int argc, char* argv[]) {
+    if (argc != 2) 
+        throw std::runtime_error("bisogna passare il nome di un file");    
 
-    loadROM(cpu, "../../assembler/programma.ch8");
+    Chip8 cpu;
+    cpu.loadROM(argv[1]);
 
     if (!initWindow("CHIP-8 Emulator", 640, 320))
         return -1;
@@ -23,16 +25,4 @@ int main() {
     cleanup();
 
     return 0;
-}
-
-void loadROM(Chip8 &cpu, const std::string &filename) {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file)  throw std::runtime_error("Impossibile aprire il file");
-
-    uint8_t byte;
-    uint16_t addr = 0x50;
-
-    while (file.read(reinterpret_cast<char*>(&byte), 1)) {
-        cpu.write_on_memory(addr++, byte);
-    }
 }

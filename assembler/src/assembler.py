@@ -129,8 +129,7 @@ def save_binary(namefile, opcodes):
 
 
 if __name__ == "__main__":
-    #filename = Path(input("File name: "))
-    filename = Path("../programma.txt")
+    filename = Path(input("File name: "))
     ops = assemble_file(filename)
     save_binary(filename.with_suffix(".ch8"), ops)
     print("Operation completed successfully")

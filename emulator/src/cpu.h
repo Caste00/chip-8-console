@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdint>
 #include <stdexcept>
+#include <fstream>
 
 #define HEIGHT 64
 #define WIDTH 128
@@ -37,13 +38,14 @@ public:
     void set_seed(uint32_t seed);
     void set_modernMode(bool m);
     void set_key_state(uint8_t key, bool pressed);
-    void write_on_memory(uint16_t addr, uint8_t byte);
     std::array<uint8_t, VIDEO_BUFFER_DIMENSION> get_video();
+    void loadROM(const std::string &filename);
     
     private: 
     void push(uint16_t value);
     uint16_t pop();
     uint8_t randByte();
+    void write_on_memory(uint16_t addr, uint8_t byte);
     
     // Per debug
     std::array<uint8_t, MEMORY_DIMENSION> get_memory();

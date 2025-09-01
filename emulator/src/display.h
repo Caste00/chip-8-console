@@ -10,7 +10,7 @@
 
 #define CHIP8_WIDTH 128
 #define CHIP8_HEIGHT 64
-#define SCALE 5
+#define SCALE 10        // scale 5 for super chip-8 (128x64), scale 10 for chip-8 (64x32)
 
 bool initWindow(const char* title, int width, int height);
 void mainLoop(Chip8& cpu);
