@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <fstream>
+#include <random>
 
 #define HEIGHT 64
 #define WIDTH 128

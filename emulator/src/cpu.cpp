@@ -363,7 +363,8 @@ uint8_t Chip8::get_pc() {
 
 void Chip8::loadROM(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary);
-    if (!file)  throw std::runtime_error("Impossibile aprire il file");
+    if (!file)  
+        throw std::runtime_error("Impossibile aprire il file");
 
     uint8_t byte;
     uint16_t addr = pc;
