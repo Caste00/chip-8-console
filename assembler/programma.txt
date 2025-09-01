@@ -1,9 +1,8 @@
 ; Disegna un cuore
 
-
 LD V0, 10
 LD V1, 14
-LDI 0x68
+LDI cuore
 DRW V0,V0,7
 LD V0, 50
 LD V1, 28
@@ -16,6 +15,7 @@ QUI:
 JP QUI
 
 ; sprite del cuore
+cuore:
 DB %01101100
 DB %10010010
 DB %10000010
