@@ -69,7 +69,6 @@ void mainLoop(Chip8& cpu) {
                         break;
                     case SDLK_5:
                         cpu.set_key_state(0x5, true);
-                        std::cout << "tasto 5 premuto";     // Debug
                         break;
                     case SDLK_6:
                         cpu.set_key_state(0x6, true);
