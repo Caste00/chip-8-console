@@ -22,7 +22,7 @@ void Chip8::reset() {
     delay_timer = 0;
     sound_timer = 0;
     seed = 0xDEADBEEF;
-    shipMode = false;
+    modernMode = false;
 
 // Fonts standard (80 byte)
     const uint8_t fontset[80] = {
@@ -44,7 +44,7 @@ void Chip8::reset() {
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
-    const uint8_t fontset10[160] = {
+    const uint8_t fonset10[160] = {
         0xF0, 0xF0, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xF0, 0xF0, // 0
         0x20, 0x20, 0x60, 0x60, 0x20, 0x20, 0x20, 0x20, 0x70, 0x70, // 1
         0xF0, 0xF0, 0x10, 0x10, 0xF0, 0xF0, 0x80, 0x80, 0xF0, 0xF0, // 2
@@ -63,12 +63,19 @@ void Chip8::reset() {
         0xF0, 0xF0, 0x80, 0x80, 0xF0, 0xF0, 0x80, 0x80, 0x80, 0x80  // F
     };
 
-    std::copy(std::begin(fontset), std::end(fontset), memory.begin());
-    std::copy(std::begin(fontset10), std::end(fontset10), memory.begin() + 80);
+    for (int j = 0; j < 80; j++)
+        memory[j] = fontset[j];
+    for (int j = 0; j < 160; j++) 
+        memory[80 + j] = fonset10[j];
+    
+}
+
+void Chip8::set_seed(uint32_t seed) {
+    this->seed = seed;
 }
 
 void Chip8::set_modernMode(bool m) {
-    shipMode = m;
+    modernMode = m;
 }
 
 void Chip8::set_key_state(uint8_t key, bool pressed) {
@@ -105,11 +112,10 @@ uint16_t Chip8::pop() {
     return stack[sp];
 }
 
+// Invece di avere un seed fisso posso leggere da un pin analogico libero e usare quello come seed, oppure da un timer quando faccio il boot
 uint8_t Chip8::randByte() {
-    static std::mt19937 gen(std::random_device{}());
-    static std::uniform_int_distribution<int> dist(0, 0xFF);
-
-    return static_cast<uint8_t>(dist(gen));
+    seed = seed * 1664525 + 1013904223;
+    return (seed >> 16) & 0xFF;
 }
 
 void Chip8::execute(uint16_t opcode) {
@@ -311,14 +317,14 @@ void Chip8::execute(uint16_t opcode) {
                     for (int j = 0; j <= x; j++) {
                         memory[i + j] = v[j]; 
                     }
-                    i += x + 1;
+                    i = modernMode ? i : i + x + 1;
                     break;
                 }
                 case 0x65: {
                     for (int j = 0; j <= x; j++) {
                         v[j] = memory[i + j];
                     }
-                    i += x + 1;
+                    i = modernMode ? i : i + x + 1;
                     break;
                 }
                 default: 
@@ -337,7 +343,7 @@ void Chip8::tickTimer() {
 }
 
 void Chip8::write_on_memory(uint16_t addr, uint8_t byte) {
-    if (addr >= 0x1000)     throw std::runtime_error("Address too big");
+    if (addr >= 0x1000)     throw std::runtime_error("Address to big");
     memory[addr] = byte;
 }
 
@@ -348,14 +354,12 @@ std::array<uint8_t, VIDEO_BUFFER_DIMENSION> Chip8::get_video() {
 void Chip8::loadROM(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file)  
-        throw std::runtime_error("file error");
+        throw std::runtime_error("Impossibile aprire il file");
 
     uint8_t byte;
     uint16_t addr = pc;
 
     while (file.read(reinterpret_cast<char*>(&byte), 1)) {
-        if (addr >= MEMORY_DIMENSION)
-            throw std::runtime_error("ROM execede memory");
         write_on_memory(addr++, byte);
     }
 }

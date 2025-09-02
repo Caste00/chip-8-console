@@ -28,7 +28,7 @@ class Chip8 {
     uint8_t delay_timer;
     uint8_t sound_timer;
     uint32_t seed;
-    bool shipMode;
+    bool modernMode;
 
 public: 
     Chip8();
