@@ -13,6 +13,7 @@
 
 #define HEIGHT 64
 #define WIDTH 128
+#define ROW_BYTE 16     // WIDTH / 8
 #define MEMORY_DIMENSION 0x1000
 const int VIDEO_BUFFER_DIMENSION = WIDTH * HEIGHT / 8;
 
@@ -28,7 +29,8 @@ class Chip8 {
     uint8_t delay_timer;
     uint8_t sound_timer;
     uint32_t seed;
-    bool shipMode;
+    bool schipMode;
+    bool running;
 
 public: 
     Chip8();

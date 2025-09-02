@@ -22,7 +22,8 @@ void Chip8::reset() {
     delay_timer = 0;
     sound_timer = 0;
     seed = 0xDEADBEEF;
-    shipMode = false;
+    schipMode = false;
+    running = true;
 
 // Fonts standard (80 byte)
     const uint8_t fontset[80] = {
@@ -68,7 +69,7 @@ void Chip8::reset() {
 }
 
 void Chip8::set_modernMode(bool m) {
-    shipMode = m;
+    schipMode = m;
 }
 
 void Chip8::set_key_state(uint8_t key, bool pressed) {
@@ -119,17 +120,71 @@ void Chip8::execute(uint16_t opcode) {
     uint16_t nnn = opcode & 0x0FFF;
     switch ((opcode & 0xF000) >> 12) {
         case 0x0: {
-            switch (opcode) {
-                case 0x00E0: {
+            switch (opcode & 0x00FF) {
+                case 0xE0: {
                     video.fill(0);
                     break;
                 }
-                case 0x00EE: {
+                case 0xEE: {
                     pc = pop();
                     break;
                 }
-                default:
+                case 0xFB: {
+                    if (schipMode) {
+                        for (int i = 0; i < HEIGHT; i++) {
+                            for (int j = ROW_BYTE; j >= 0; j++) {
+                                int index = i * ROW_BYTE + j;
+                                uint8_t current = video[index];
+                                uint8_t next = (j > 0) ? video[index - 1] : 0;
+
+                                video[index] = (current >> 4) | (next << 4);
+                            }
+                        }
+                    }
                     break;
+                }
+                case 0xFC: {
+                    if (schipMode) {
+                        for (int i = 0; i < HEIGHT; i++) {
+                            for (int j = 0; j < ROW_BYTE; j++) {
+                                int index = i * ROW_BYTE + j;
+                                uint8_t current = video[index];
+                                uint8_t next = (j + 1 < ROW_BYTE) ? video[index + 1] : 0;
+                                
+                                video[index] = (current << 4) | (next >> 4);
+                            }
+                        }
+                    }
+                    break;
+                } 
+                case 0xFD: {
+                    if (schipMode)
+                        running = false;
+                    break;
+                }
+                case 0xFE: {
+                    if (schipMode)
+                        schipMode = false;
+                    break;
+                }
+                case 0xFF: {
+                    if (!schipMode) 
+                        schipMode = true;
+                    break;
+                }
+                default: {
+                    if ((opcode & 0xF0) == 0xC0 && schipMode) {        // caso 00CN
+                        uint8_t n = opcode & 0x000F;
+                        int offset = n * ROW_BYTE;
+                        for (int i = VIDEO_BUFFER_DIMENSION; i >= 0; i++) {
+                            if (i >= offset)
+                                video[i] = video[i + offset];
+                            else 
+                                video[i] = 0x00;
+                        }
+                    }
+                    break;
+                }
             }
             break;
         }
@@ -300,6 +355,10 @@ void Chip8::execute(uint16_t opcode) {
                 case 0x29: {
                     i = v[x] * 5;
                     break;
+                }
+                case 0x30: {
+                    if (schipMode)
+                        i = 80 + v[x] * 10;
                 }
                 case 0x33: {
                     memory[i]       = v[x] / 100;
