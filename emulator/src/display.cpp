@@ -181,21 +181,24 @@ void mainLoop(Chip8& cpu) {
     }
 }
 
+
 void drawChip8Screen(SDL_Renderer* renderer, Chip8& cpu) {
     const auto& buffer = cpu.get_video();
-    
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);         // sfondo nero
+    int width  = cpu.is_schipMode() ? SCHIP_WIDTH : CHIP8_WIDTH_BASE;
+    int height = cpu.is_schipMode() ? SCHIP_HEIGHT : CHIP8_HEIGHT_BASE;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);   // pixel bianchi
-    
-    for (int y = 0; y < CHIP8_HEIGHT; y++) {
-        for (int x = 0; x < CHIP8_WIDTH; x++) {
-            int byteIndex = y * (CHIP8_WIDTH / 8) + (x / 8);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int byteIndex = y * (width / 8) + (x / 8);
             uint8_t mask = 0x80 >> (x % 8);
 
             if (buffer[byteIndex] & mask) {
-                SDL_Rect rect { x * SCALE, y * SCALE, SCALE, SCALE};
+                SDL_Rect rect{ x * SCALE, y * SCALE, SCALE, SCALE };
                 SDL_RenderFillRect(renderer, &rect);
             }
         }
@@ -203,6 +206,7 @@ void drawChip8Screen(SDL_Renderer* renderer, Chip8& cpu) {
 
     SDL_RenderPresent(renderer);
 }
+
 
 void cleanup() {
     SDL_DestroyRenderer(renderer);

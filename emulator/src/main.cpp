@@ -9,8 +9,6 @@
 #include <iostream>
 #include <iomanip>
 
-void loadROM(Chip8 &cpu, const std::string &filename);
-
 int main(int argc, char* argv[]) {
     if (argc != 2) 
         throw std::runtime_error("bisogna passare il nome di un file");    

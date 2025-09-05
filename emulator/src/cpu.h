@@ -43,6 +43,7 @@ public:
     void set_key_state(uint8_t key, bool pressed);
     std::array<uint8_t, VIDEO_BUFFER_DIMENSION> get_video();
     void loadROM(const std::string &filename);
+    bool is_schipMode();
     
     private: 
     void push(uint16_t value);

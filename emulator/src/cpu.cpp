@@ -290,21 +290,43 @@ void Chip8::execute(uint16_t opcode) {
             v[0xF] = 0;
             uint8_t n = opcode & 0x000F;
 
-            for (int row = 0; row < n; ++row) {
-                uint8_t sprite_byte = memory[i + row];
-                int y_coord = (v[y] + row) % HEIGHT;
+            if (schipMode && n == 0) {
+                for (int row = 0; row < 16; ++row) {
+                    uint16_t sprite_row = (memory[i + row * 2] << 8) | memory[i + row * 2 + 1];
+                    int y_coord = (v[y] + row) % HEIGHT;
 
-                for (int col = 0; col < 8; col++) {
-                    if (sprite_byte & (0x80 >> col)) {
-                        int x_coord = (v[x] + col) % WIDTH;
+                    for (int col = 0; col < 16; col++) {
+                        if (sprite_row & (0x8000 >> col)) {
+                            int x_coord = (v[x] + col) % WIDTH;
 
-                        int byte_index = y_coord * (WIDTH / 8) + (x_coord / 8);
-                        uint8_t mask = 0x80 >> (x_coord % 8);
+                            int byte_index = y_coord * (WIDTH / 8) + (x_coord / 8);
+                            uint8_t mask = 0x80 >> (x_coord % 8);
 
-                        if (video[byte_index] & mask)
-                            v[0xF] = 1;
-                        
-                        video[byte_index] ^= mask;
+                            if (video[byte_index] & mask)
+                                v[0xF] = 1;
+
+                            video[byte_index] ^= mask;
+                        }
+                    }
+                }
+            } else {
+                // Sprite standard 8xN
+                for (int row = 0; row < n; ++row) {
+                    uint8_t sprite_byte = memory[i + row];
+                    int y_coord = (v[y] + row) % HEIGHT;
+
+                    for (int col = 0; col < 8; col++) {
+                        if (sprite_byte & (0x80 >> col)) {
+                            int x_coord = (v[x] + col) % WIDTH;
+
+                            int byte_index = y_coord * (WIDTH / 8) + (x_coord / 8);
+                            uint8_t mask = 0x80 >> (x_coord % 8);
+
+                            if (video[byte_index] & mask)
+                                v[0xF] = 1;
+
+                            video[byte_index] ^= mask;
+                        }
                     }
                 }
             }
@@ -370,14 +392,14 @@ void Chip8::execute(uint16_t opcode) {
                     for (int j = 0; j <= x; j++) {
                         memory[i + j] = v[j]; 
                     }
-                    i += x + 1;
+                    i = schipMode ? i : i + 1;
                     break;
                 }
                 case 0x65: {
                     for (int j = 0; j <= x; j++) {
                         v[j] = memory[i + j];
                     }
-                    i += x + 1;
+                    i = schipMode ? i : i + 1;
                     break;
                 }
                 default: 
@@ -417,4 +439,8 @@ void Chip8::loadROM(const std::string &filename) {
             throw std::runtime_error("ROM execede memory");
         write_on_memory(addr++, byte);
     }
+}
+
+bool Chip8::is_schipMode() {
+    return schipMode;
 }
