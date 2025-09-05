@@ -116,7 +116,7 @@ Mappatura: 1 pixel CHIP‑8 → blocco 2×2 pixel reali
 | LDI      | `ANNN` | NNN | `I = NNN` | — |
 | JPV0     | `BNNN` | NNN | Salta a `V0 + NNN` | — |
 | RND      | `CXNN` | X, NN | `Vx = rand() & NN` | rand = 8‑bit casuale |
-| DRW      | `DXYN` | X, Y, N | Disegna sprite 8×N a `(Vx, Vy)` da memoria[I] | VF = collisione |
+| DRW      | `DXYN` | X, Y, N | Disegna sprite 8×N a `(Vx, Vy)` da memoria[I], in modalità schip con n = 0, disegna uno sprite 16x16 | VF = collisione |
 | SKP      | `EX9E` | X | Salta se tasto `Vx` premuto | — |
 | SKNP     | `EXA1` | X | Salta se tasto `Vx` NON premuto | — |
 | LD_DT    | `FX07` | X | `Vx = Delay Timer` | — |
@@ -128,7 +128,12 @@ Mappatura: 1 pixel CHIP‑8 → blocco 2×2 pixel reali
 | LD_B     | `FX33` | X | BCD di `Vx` in memoria[I..I+2] | Centinaia, decine, unità |
 | LD_MEM   | `FX55` | X | Salva V0..Vx in memoria[I..I+X] | I++ dopo ogni store (varia) |
 | LD_REG   | `FX65` | X | Carica V0..Vx da memoria[I..I+X] | I++ dopo ogni load (varia) |
-
+| SCRD     | `00CN` | N | Scroll down di `N` pixels | — |
+| SCRR     | `00FB` | — | Scroll a destra di 4 pixels | — |
+| SCRL     | `00FC` | — | Scroll a sinistra di 4 pixels | — |
+| EXIT     | `00FD` | — | Uscita dal programma | — |
+| LOW      | `00FE` | — | Passa alla modalità CHIP-8 | — |
+| HIGH     | `00FF` | — | Passa alla modalità Super-CHIP-8 | — |
 ---
 
 ## 📌 Note sulle varianti

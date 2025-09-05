@@ -34,5 +34,11 @@
     "LD_F":     { "code": 61481, "args": 1, "type": "x" },
     "LD_B":     { "code": 61491, "args": 1, "type": "x" },
     "LD_MEM":   { "code": 61525, "args": 1, "type": "x" },
-    "LD_REG":   { "code": 61541, "args": 1, "type": "x" }
+    "LD_REG":   { "code": 61541, "args": 1, "type": "x" },
+    "SCRD":     { "code": 191, "args": 1, "type": "n" }, 
+    "SCRR":     { "code": 251, "args": 0, "type": "no_arg" },
+    "SCRL":     { "code": 252, "args": 0, "type": "no_arg" },
+    "EXIT":     { "code": 253, "args": 0, "type": "no_arg" },
+    "LOW":      { "code": 254, "args": 0, "type": "no_arg" },
+    "HIGH":     { "code": 255, "args": 0, "type": "no_arg" }
 }
